@@ -8,8 +8,13 @@
 // Soundhax
 // 1.0-11.3, all regions, all consoles
 function can_soundhax(major, minor, native, region, model) {
-    if(major <= 10) return true;
-    else if(major == 11 && minor <= 3) return true;
+    let do_redirect = false;
+    if(major <= 10) do_redirect = true;
+    else if(major == 11 && minor <= 3) do_redirect = true;
+
+    if(do_redirect)
+        window.location.href = "installing-boot9strap-(soundhax)";
+
     return false;
 }
 
@@ -18,6 +23,7 @@ function can_soundhax(major, minor, native, region, model) {
 // KOR/CHN/TWN Old 3DS browser (spider) 1.7630 (v10240, shipped with 11.1~11.8) isn't supported by browserhax
 // CHN/TWN isn't validated for now as those cannot exploit atm
 function can_ssloth(major, minor, native, region, model) {
+    let do_redirect = false;
     if(major == 11) {
         if(["U", "E", "J"].includes(region)) {
             if
@@ -33,7 +39,7 @@ function can_ssloth(major, minor, native, region, model) {
                 (minor == 12 && native == 44) ||
                 (minor == 13 && native == 45)
                 ) {
-                    return true;
+                    do_redirect = true;
             }
         } else if (region == "K") {
             if
@@ -48,10 +54,13 @@ function can_ssloth(major, minor, native, region, model) {
                 (minor == 12 && native == 38) ||
                 (minor == 13 && native == 39)
                 ) {
-                    return true;
+                    do_redirect = true;
             }
         }
     }
+
+    if(do_redirect)
+        window.location.href = "installing-boot9strap-(ssloth-browser)";
     return false;
 }
 
@@ -60,9 +69,14 @@ function can_ssloth(major, minor, native, region, model) {
 // Works on 1.0 to 11.14
 // Soundhax and SSLoth should be validated before this
 function can_safecerthax(major, minor, native, region, model) {
-    if (model != 0) return false;
-    if (major <= 10) return true;
-    else if (major == 11 && minor <= 14) return true;
+    let do_redirect = false;
+    if (model == 0) {
+        if (major <= 10) do_redirect = true;
+        else if (major == 11 && minor <= 14) do_redirect = true;
+    }
+
+    if(do_redirect)
+        window.location.href = "installing-boot9strap-(safecerthax)";
     return false;
 }
 
@@ -71,25 +85,50 @@ function can_safecerthax(major, minor, native, region, model) {
 // KOR: 11.16 only, KOR does not have 11.17
 // CHN/TWN has no N3DS
 function can_superskaterhax(major, minor, native, region, model) {
-    if(model != 1) return false;
-    if (major == 11) {
-        if (["E", "J"].includes(region) && minor == 17)
-            return true;
-        else if(region == "K" && minor == 16)
-            return true;
+    let do_redirect_sysupdate = false;
+    let do_redirect = false;
+    if(model == 1) {
+        if (major == 11) {
+            if (["E", "J"].includes(region)) {
+                if (minor == 17) do_redirect = true;
+                else if (minor == 15 || minor == 16) do_redirect_sysupdate == true;
+            }
+            else if(region == "K") {
+                if (minor == 16) do_redirect = true;
+                else if (minor == 15) do_redirect_sysupdate == true;
+            }
+        }
     }
+
+    if (do_redirect_sysupdate) {
+        window.location.href = "updating-firmware-(new-3ds)";
+        return true;
+    }
+    else if (do_redirect)
+        window.location.href = "homebrew-launcher-(super-skaterhax)";
     return false;
 }
 
 // Seedminer, U/E/J/K region
 // only 11.16 can run Seedminer
 function can_seedminer(major, minor, native, region, model) {
-    return (["U", "E", "J", "K"].includes(region) && major == 11 && minor == 16);
-}
+    let do_redirect_sysupdate = false;
+    let do_redirect_twn = false;
+    let do_redirect = false;
+    if (major == 11 && minor == 16) {
+        if (["U", "E", "J", "K"].includes(region)) do_redirect = true;
+        else if (region == "T") do_redirect_twn = true;
+    }
+    else if (model == 0 && region == "K") do_redirect_sysupdate = true;
 
-// TWN needs a special seedminer
-function can_seedminer_twn(major, minor, native, region, model) {
-    return (region == "T" && major == 11 && minor == 16);
+    if (do_redirect_sysupdate)
+        window.location.href = "updating-firmware-(kor-twn)";
+    else if (do_redirect_twn)
+        window.location.href = "seedminer-(twn)";
+    else if (do_redirect)
+        window.location.href = "seedminer";
+
+    return false;
 }
 
 /*
@@ -142,19 +181,13 @@ function redirect() {
     if(isN3DS) model = 1;
 
     // Start validation
-    if(can_soundhax(major.value. minor.value, nver.value, region.value, model))
-        window.location.href = "installing-boot9strap-(soundhax)";
-    else if(can_ssloth(major.value, minor.value, nver.value, region.value, model))
-        window.location.href = "installing-boot9strap-(ssloth-browser)";
-    else if(can_safecerthax(major.value, minor.value, nver.value, region.value, model))
-        window.location.href = "installing-boot9strap-(safecerthax)";
+    can_soundhax(major.value, minor.value, nver.value, region.value, model);
+    can_ssloth(major.value, minor.value, nver.value, region.value, model)
+    can_safecerthax(major.value, minor.value, nver.value, region.value, model);
     // check super-skaterhax before seedminer, as both run on certain 11.16
-    else if(can_superskaterhax(major.value, minor.vlaue, nver.value, region.value, model))
-        window.location.href = "homebrew-launcher-(super-skaterhax)";
-    else if(can_seedminer(major.value, minor.value, nver.value, region.value, model))
-        window.location.href = "seedminer";
-    else if(can_seedminer_twn(major.value, minor.value, nver.value, region.value, model))
-        window.location.href = "seedminer-(twn)";
-    else
-        document.getElementById("result_methodUnavailable").style.display = "block";
+    can_superskaterhax(major.value, minor.vlaue, nver.value, region.value, model);
+    can_seedminer(major.value, minor.value, nver.value, region.value, model);
+
+    // if it actually got to this point, there is no exploit available.
+    document.getElementById("result_methodUnavailable").style.display = "block";
 }
